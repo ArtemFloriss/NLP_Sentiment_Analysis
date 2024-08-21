@@ -4,6 +4,7 @@ import re
 import nltk
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.keras.backend import set_session
 from tensorflow.keras.preprocessing import sequence
 from tensorflow.keras import models
 from lxml import etree
