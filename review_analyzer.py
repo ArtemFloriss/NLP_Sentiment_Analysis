@@ -60,7 +60,7 @@ def step_decay(epoch):
 # epochs to drop every
     initAlpha = 0.001
     factor = 0.2
-    dropEvery = 5
+    dropEvery = 3
 
     # compute learning rate for the current epoch
     alpha = initAlpha * (factor ** np.floor((1 + epoch) / dropEvery))
@@ -241,21 +241,22 @@ opt = Adam(lr = 0.001)
 
 model = Sequential()
 model.add(Embedding(input_dim=VOCAB_SIZE, output_dim=EMBEDDING_SIZE, input_length=MAX_SENTENCE_LENGTH))
-model.add(Bidirectional(LSTM(HIDDEN_LAYER_SIZE, return_sequences=True, dropout=0.3, recurrent_dropout=0.3)))
+#model.add(Bidirectional(LSTM(HIDDEN_LAYER_SIZE, return_sequences=True, dropout=0.3, recurrent_dropout=0.3)))
+model.add(Bidirectional(LSTM(int(HIDDEN_LAYER_SIZE), return_sequences=True)))
 model.add(GlobalMaxPooling1D())
 #model.add(Bidirectional(LSTM(16, dropout=0.3, recurrent_dropout=0.3)))
 #model.add(Flatten())
 model.add(Dense(16, activation='relu', kernel_regularizer=l2(0.01)))
-model.add(Dropout(0.5))
+#model.add(Dropout(0.5))
 
 model.add(Dense(1))
 model.add(Activation("sigmoid"))
 
-model.compile(loss="binary_crossentropy", optimizer='adam', metrics=["accuracy"])
+model.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
 #--------------------------------------------*Model Train*--------------------------------------------------------------
 checkpoint = ModelCheckpoint(os.path.join(best_weights_store_dir, 'LSTM_dist_best_weihts.bin'), monitor="val_loss", save_best_only=True)
 rate_shed = LearningRateScheduler(step_decay)
-CALLBACKS = [checkpoint]
+CALLBACKS = [checkpoint,rate_shed]
 
 print("[INFO]: Training....")
 #history = model.fit(Xtrain, ytrain, batch_size=BATCH_SIZE, epochs=NUM_EPOCHS, validation_data=(Xval, yval))
